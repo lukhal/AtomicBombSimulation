@@ -8,16 +8,4 @@ public class Atom {
 		x=a; y=b; z=c; 
 		exists =d;
 	}
-	
-	/*
-	public void setExistence(boolean a)
-	{
-	exists = a;
-	}
-	
-	public boolean getExistence()
-	{
-	return exists;
-	}
-	*/
 }

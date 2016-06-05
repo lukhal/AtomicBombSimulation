@@ -1,7 +1,7 @@
 package poJavaProjekt;
 
 public class Neutron {
-	double x, y, z;
+	public double x, y, z;
 	double v_x,v_y,v_z;
 	
 	public Neutron(double a, double b, double c, double v_r) {
@@ -28,7 +28,7 @@ public class Neutron {
 		
 	}
 	
-	boolean outOfBorders(int a, int b, int c)
+	boolean outOfBorders(double a, double b, double c)
 	{
 		boolean d=false;
 		if(x>a||x<0||y>b||y<0||z>c||z<0)

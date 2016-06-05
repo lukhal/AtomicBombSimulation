@@ -3,90 +3,149 @@ package poJavaProjekt;
 import java.util.Vector;
 
 public class Simulation {
+	Vector<Atom> atomContainer;
+	Vector<Neutron> neutronContainer;
 
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-		Vector<Atom> atomContainer= new Vector<Atom>(1000);
-		Vector<Neutron> neutronContainer= new Vector<Neutron>(1000);
+	double probabilityOfNaturalFission;
+	double probabilityOfReflection;
+	double velocityOfNeutron;
+	double dt;
+	double maxDistanceFromAtomThatCausesFission;
+	double energyOfFission;
+	double energyAfterIteration;
+	double totalEnergy;
+	double instantaneousPower;
+	int maxNumberOfAtomsInX;
+	int maxNumberOfAtomsInY;
+	int maxNumberOfAtomsInZ;
+	double lengthBetweenAtoms;
+	
 
-		double probabilityOfNaturalFission=0.05;
-		double probabilityOfReflection=0.5;
-		double velocityOfNeutron=1;
-		double dt=0.1;
-		double maxDistanceFromAtomThatCausesFission=0.1;
-		double energyOfFission=1;
-		double energyAfterIteration=0;
-		double totalEnergy=0;
-		double instantaneousPower=0;
+	
+	public Simulation(double v_probabilityOfNaturalFission,double v_probabilityOfReflection, double v_velocityOfNeutron, double v_dt,
+			double v_maxDistanceFromAtomThatCausesFission, double v_energyOfFission, double v_energyAfterIteration, double v_totalEnergy,
+			double v_instantaneousPower, int v_maxNumberOfAtomsInX,int v_maxNumberOfAtomsInY,int v_maxNumberOfAtomsInZ, double v_lengthBetweenAtoms){
+		
+			atomContainer= new Vector<Atom>(10);
+			neutronContainer= new Vector<Neutron>(10);
+	
+			probabilityOfNaturalFission=v_probabilityOfNaturalFission;
+			probabilityOfReflection=v_probabilityOfReflection;
+			velocityOfNeutron=v_velocityOfNeutron;
+			dt=v_dt;
+			maxDistanceFromAtomThatCausesFission=v_maxDistanceFromAtomThatCausesFission;
+			energyOfFission=v_energyOfFission;
+			energyAfterIteration=v_energyAfterIteration;
+			totalEnergy=v_totalEnergy;
+			instantaneousPower=v_instantaneousPower;
+			lengthBetweenAtoms=v_lengthBetweenAtoms;
+			
+			//rozmiary siatki atomow
+			maxNumberOfAtomsInX=v_maxNumberOfAtomsInX;
+			maxNumberOfAtomsInY=v_maxNumberOfAtomsInY;
+			maxNumberOfAtomsInZ=v_maxNumberOfAtomsInZ;
+			};
+		
+	long getIndexOfClosestAtom(Neutron n)
+	{
+		long index=-1;
+		long intX= Math.round((n.x)/(lengthBetweenAtoms));
+		long intY= Math.round((n.y)/(lengthBetweenAtoms));
+		long intZ= Math.round((n.z)/(lengthBetweenAtoms));
 		
 		
-		//rozmiary siatki atomow
-		int maxNumberOfAtomsInX=10;
-		int maxNumberOfAtomsInY=10;
-		int maxNumberOfAtomsInZ=10;
+		index=intZ*(maxNumberOfAtomsInY)*(maxNumberOfAtomsInX)+intY*(maxNumberOfAtomsInX)+intX;
+
+		if(intX>=maxNumberOfAtomsInX||intY>=maxNumberOfAtomsInY||intZ>=maxNumberOfAtomsInZ)
+		{
+			//System.out.println("przypał");
+			//System.out.println(n.x+" "+n.y+" "+n.z);
+			//System.out.print("Skwantowane wsp neutronu" + " " + intX +" "+ intY+" " +intZ);
+			//System.out.println();
+			index=0;
+		}
 		
+		return index;
+		
+	}
 		
 		
 		//stworzenie atomów
-		//współrzędne zmieniają się co 1
-		
-		for(double ii=0; ii<maxNumberOfAtomsInX; ii++)
+	void letThereBeAtoms()
+	{
+		for(double ii=0; ii<maxNumberOfAtomsInZ; ii++)
 		{
 			for(double jj=0; jj<maxNumberOfAtomsInY; jj++)
 			{
-				for(double kk=0; kk<maxNumberOfAtomsInZ; kk++)
+				for(double kk=0; kk<maxNumberOfAtomsInX; kk++)
 				{
-					atomContainer.add(new Atom(ii, jj, kk, true));
+					atomContainer.add(new Atom(lengthBetweenAtoms*kk, lengthBetweenAtoms*jj, lengthBetweenAtoms*ii, true));
 				}
 			}
 		}
-		
-		System.out.println("elo");
+	}
+	
 
 		
-		for(int lll=0;lll<1000;lll++)
-		{
-			energyAfterIteration=0;
-			
+		
+	void energyAfterIterationEqualsZero()
+	{
+		energyAfterIteration=0;
+	}
+	
+	void NaturalFission()
+	{
 			//losowy rozpad
 			for(int ii=0;ii<atomContainer.size();ii++)
 			{
 				
-				
-				if(Math.random()<probabilityOfNaturalFission&&atomContainer.elementAt(ii).exists==true)
+				if(atomContainer.elementAt(ii).exists==true)
 				{
-					atomContainer.elementAt(ii).exists=false;
-					
-					neutronContainer.add(new Neutron(atomContainer.elementAt(ii).x, atomContainer.elementAt(ii).y, atomContainer.elementAt(ii).z, velocityOfNeutron));
-					energyAfterIteration+=energyOfFission;
-	
+					if(Math.random()<probabilityOfNaturalFission)
+					{
+						atomContainer.elementAt(ii).exists=false;
+						
+						neutronContainer.add(new Neutron(atomContainer.elementAt(ii).x, atomContainer.elementAt(ii).y, atomContainer.elementAt(ii).z, velocityOfNeutron));
+						energyAfterIteration+=energyOfFission;
+		
+					}
 				}
 			}
-			//System.out.println("1");
-			//System.out.println(Energy);
-
+			
+	}
+	
+	void NeutronsPlusTime()
+	{
 			//neutrony + czas
 			for(int ii=0;ii<neutronContainer.size();ii++)
 			{
 				neutronContainer.get(ii).Move(dt);
 				//sprawdz czy poza granicami, jesli tak to usun z wektora
-				if(neutronContainer.elementAt(ii).outOfBorders(maxNumberOfAtomsInX,maxNumberOfAtomsInY,maxNumberOfAtomsInZ))
+				if(neutronContainer.elementAt(ii).outOfBorders(maxNumberOfAtomsInX*lengthBetweenAtoms,maxNumberOfAtomsInY*lengthBetweenAtoms,maxNumberOfAtomsInZ*lengthBetweenAtoms))
 				{
 					neutronContainer.remove(ii);
 				}
 				
 			}
-
+	}
+	
+	void CheckIfHit()
+	{
 			//sprawdzam czy trafiłem
-			
+			int jj=0;
 			int superVariable= neutronContainer.size();
 			for(int ii=0;ii<superVariable;ii++)
 			{
 				//atomContainer.size()
-				for(int jj=0;jj<atomContainer.size();jj++)
-				{
+				//for(int jj=0;jj<atomContainer.size();jj++)
+				//{
 					//&&atomContainer.elementAt(jj).exists==true
-					if(neutronContainer.elementAt(ii).distanceFromAtom(atomContainer.elementAt(jj))<maxDistanceFromAtomThatCausesFission&&atomContainer.elementAt(jj).exists==true)
+				jj =(int) getIndexOfClosestAtom(neutronContainer.elementAt(ii));
+				
+				//System.out.println("Indeks" + jj);
+					if(atomContainer.elementAt(jj).exists==true)
+						{
+					if(neutronContainer.elementAt(ii).distanceFromAtom(atomContainer.elementAt(jj))<maxDistanceFromAtomThatCausesFission)
 						{
 						//System.out.println(neutronContainer.elementAt(ii).distanceFromAtom(atomContainer.elementAt(jj)));
 
@@ -96,7 +155,7 @@ public class Simulation {
 							{
 							//odbicie neutronu
 							neutronContainer.add(ii, new Neutron(atomContainer.elementAt(jj).x, atomContainer.elementAt(jj).y, atomContainer.elementAt(jj).z, velocityOfNeutron));
-							neutronContainer.remove(ii++);
+							neutronContainer.remove(ii+1);
 							}
 						else
 							{
@@ -106,28 +165,39 @@ public class Simulation {
 							energyAfterIteration+=energyOfFission;
 							}
 						}
-				
 				}
+				//}
 				
 				
 			}
 			
 		totalEnergy+=energyAfterIteration;
 		instantaneousPower=energyAfterIteration/dt;
-		
+	
 		//System.out.println("Energy after iteration:" + energyAfterIteration);
 		
 		//"Power:" + 
-		System.out.print(instantaneousPower+ " ");
+		//System.out.print(instantaneousPower+ " ");
 		
 		//"Total energy after an iteration:" + 
-		System.out.println(totalEnergy);
-
-		
-		}
+		//System.out.println(totalEnergy);
 		//System.out.println("Total energy:" + totalEnergy);
+
+	}
 		
-		
+	double getInstantaneousPower()
+	{
+		return instantaneousPower;
+	}
+	
+	double getTotalEnergy()
+	{
+		return totalEnergy;
+	}
+	
+	double getTime()
+	{
+		return dt;
 	}
 }
 

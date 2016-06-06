@@ -58,10 +58,6 @@ public class Simulation {
 
 		if(intX>=maxNumberOfAtomsInX||intY>=maxNumberOfAtomsInY||intZ>=maxNumberOfAtomsInZ)
 		{
-			//System.out.println("przypał");
-			//System.out.println(n.x+" "+n.y+" "+n.z);
-			//System.out.print("Skwantowane wsp neutronu" + " " + intX +" "+ intY+" " +intZ);
-			//System.out.println();
 			index=0;
 		}
 		
@@ -70,7 +66,7 @@ public class Simulation {
 	}
 		
 		
-		//stworzenie atomów
+	//stworzenie atomów
 	void letThereBeAtoms()
 	{
 		for(double ii=0; ii<maxNumberOfAtomsInZ; ii++)
@@ -131,26 +127,17 @@ public class Simulation {
 	
 	void CheckIfHit()
 	{
-			//sprawdzam czy trafiłem
+			//sprawdz czy trafienie
 			int jj=0;
 			int superVariable= neutronContainer.size();
 			for(int ii=0;ii<superVariable;ii++)
 			{
-				//atomContainer.size()
-				//for(int jj=0;jj<atomContainer.size();jj++)
-				//{
-					//&&atomContainer.elementAt(jj).exists==true
 				jj =(int) getIndexOfClosestAtom(neutronContainer.elementAt(ii));
 				
-				//System.out.println("Indeks" + jj);
 					if(atomContainer.elementAt(jj).exists==true)
 						{
 					if(neutronContainer.elementAt(ii).distanceFromAtom(atomContainer.elementAt(jj))<maxDistanceFromAtomThatCausesFission)
 						{
-						//System.out.println(neutronContainer.elementAt(ii).distanceFromAtom(atomContainer.elementAt(jj)));
-
-						//System.out.println("ii" +ii);
-						//System.out.println("jj" +jj);
 						if(Math.random()<probabilityOfReflection)
 							{
 							//odbicie neutronu
@@ -166,22 +153,13 @@ public class Simulation {
 							}
 						}
 				}
-				//}
-				
+								
 				
 			}
 			
 		totalEnergy+=energyAfterIteration;
 		instantaneousPower=energyAfterIteration/dt;
 	
-		//System.out.println("Energy after iteration:" + energyAfterIteration);
-		
-		//"Power:" + 
-		//System.out.print(instantaneousPower+ " ");
-		
-		//"Total energy after an iteration:" + 
-		//System.out.println(totalEnergy);
-		//System.out.println("Total energy:" + totalEnergy);
 
 	}
 		

@@ -4,7 +4,6 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.HeadlessException;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
@@ -22,11 +21,9 @@ import java.io.OutputStreamWriter;
 import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
@@ -59,14 +56,35 @@ public class Project extends JFrame{
 	static JTextField jtf1, jtf2, jtf3, jtf4, jtf5, jtf6, jtf7, jtf8, jtf9, jtf10, jtf11;
 	
 	static double time=0;
-	static boolean simulationStart=false;
-	static boolean simulationReset=false;
+	boolean simulationStart=false;
+	boolean simulationReset=false;
 	
 	static File fout;
 	static FileOutputStream fos;
  
 	static BufferedWriter bw;
- 
+	//ToolPanel toolPanel;
+	
+	
+	void setSimulationStart(boolean b)
+	{
+		simulationStart=b;
+	}
+	
+	void setSimulationReset(boolean b)
+	{
+		simulationReset=b;
+	}
+	
+	boolean getSimulationStart()
+	{
+		return simulationStart;
+	}
+	
+	boolean getSimulationReset()
+	{
+		return simulationReset;
+	}
 	
 	ActionListener startListener=new ActionListener(){
 
@@ -235,14 +253,46 @@ public class Project extends JFrame{
 		}
 	} 
 	
+	static void printHeader(BufferedWriter bw, ToolPanel toolPanel)
+	{
 
+		try {
+			bw.write("Symulacja 2000");
+			bw.newLine();
+			bw.write("Prawdopodobienstwo naturalnego rozpadu "+toolPanel.getJtf1());
+			bw.newLine();
+			bw.write("Prawdopodobienstwo odbicia "+toolPanel.getJtf2());
+			bw.newLine();
+			bw.write("Predkosc neutronu [m/s] "+toolPanel.getJtf3());
+			bw.newLine();
+			bw.write("dt - krok symulacji [s] "+toolPanel.getJtf4());
+			bw.newLine();
+			bw.write("Promien jadra atomu [m] "+toolPanel.getJtf5());
+			bw.newLine();
+			bw.write("Energia pojedynczego rozpadu [J] "+toolPanel.getJtf6());
+			bw.newLine();
+			bw.write("Ilosc atomow we wspolrzednej x "+toolPanel.getJtf7());
+			bw.newLine();
+			bw.write("Ilosc atomow we wspolrzednej y "+toolPanel.getJtf8());
+			bw.newLine();
+			bw.write("Ilosc atomow we wspolrzednej z "+toolPanel.getJtf9());
+			bw.newLine();
+			bw.write("Odleglosc pomiedzy atomami [m] "+toolPanel.getJtf10());
+			bw.newLine();
+			bw.newLine();
+			bw.write("Czas [s] "+ "Energia [J]" + "Moc [W]");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
 	
-	public Project() throws HeadlessException {
+	public Project(ToolPanel TempToolPanel) throws HeadlessException {
 		super("Symulacja 2000");
 		
-	setSize(1200,900);
 	//setResizable(false);
-	setMinimumSize(new Dimension(1100, 900));
+	//setMinimumSize(new Dimension(1100, 900));
 	setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 	setLayout(new GridBagLayout());
 	GridBagConstraints gbc = new GridBagConstraints();
@@ -330,42 +380,23 @@ public class Project extends JFrame{
 			
 			gbc.gridx=0;
 			gbc.gridy=0;
-			gbc.gridwidth=3;
+			gbc.gridwidth=2;
 			gbc.gridheight=1;
 			gbc.weightx=1;
-			gbc.weighty=1;
-			gbc.fill=GridBagConstraints.BOTH;
-			gbc.insets= new Insets(1,1,1,1);
+			gbc.weighty=0;
+			gbc.fill=GridBagConstraints.HORIZONTAL;
+			gbc.anchor=GridBagConstraints.CENTER;
+			//gbc.insets= new Insets(1,1,1,1);
 			
 			add(menuBar, gbc);
 			
 	
 chartPanel = new ChartPanel(lineGraph);
+//chartPanel.setSize(200, 200);
 //gbc.anchor=GridBagConstraints.FIRST_LINE_START;
-gbc.gridx=0;
-gbc.gridy=1;
-gbc.gridwidth=1;
-gbc.gridheight=20;
-gbc.weightx=1;
-gbc.weighty=1;
 gbc.fill=GridBagConstraints.BOTH;
 
-add(chartPanel, gbc);
-
-chartPanel2 = new ChartPanel(lineGraph2);
 gbc.gridx=0;
-gbc.gridy=21;
-gbc.gridwidth=1;
-gbc.gridheight=20;
-gbc.weightx=1;
-gbc.weighty=1;
-//gbc.gridwidth=3;
-gbc.fill=GridBagConstraints.BOTH;
-
-add(chartPanel2, gbc);
-//
-//labele
-gbc.gridx=1;
 gbc.gridy=1;
 gbc.gridwidth=1;
 gbc.gridheight=1;
@@ -373,112 +404,38 @@ gbc.weightx=1;
 gbc.weighty=1;
 //gbc.fill=GridBagConstraints.BOTH;
 
-JLabel jl1= new JLabel("Prawdopodobienstwo naturalnego rozpadu");
-gbc.gridy=1;
-add(jl1, gbc);
+add(chartPanel, gbc);
 
-jl1= new JLabel("Prawdopodobienstwo odbicia");
+chartPanel2 = new ChartPanel(lineGraph2);
+gbc.gridx=0;
 gbc.gridy=2;
-add(jl1, gbc);
-
-jl1= new JLabel("Predkosc neutronu [m/s]");
-gbc.gridy=3;
-add(jl1, gbc);
-
-jl1= new JLabel("dt - krok symulacji [s]");
-gbc.gridy=4;
-add(jl1, gbc);
-
-jl1= new JLabel("Promien jadra atomu [m]");
-gbc.gridy=5;
-add(jl1, gbc);
-
-jl1= new JLabel("Energia pojedynczego rozpadu [J]");
-gbc.gridy=6;
-add(jl1, gbc);
-
-jl1= new JLabel("Ilosc atomow we wspolrzednej x");
-gbc.gridy=7;
-add(jl1, gbc);
-
-jl1= new JLabel("Ilosc atomow we wspolrzednej y");
-gbc.gridy=8;
-add(jl1, gbc);
-
-jl1= new JLabel("Ilosc atomow we wspolrzednej z");
-gbc.gridy=9;
-add(jl1, gbc);
-
-jl1= new JLabel("Odleglosc pomiedzy atomami [m]");
-gbc.gridy=10;
-add(jl1, gbc);
-
-
-gbc.gridx=2;
-gbc.gridy=1;
 gbc.gridwidth=1;
 gbc.gridheight=1;
 gbc.weightx=1;
 gbc.weighty=1;
+//gbc.gridwidth=3;
+//gbc.fill=GridBagConstraints.BOTH;
+
+add(chartPanel2, gbc);
+
+
+gbc.fill=GridBagConstraints.HORIZONTAL;
+
+gbc.gridx=1;
+gbc.gridy=1;
+gbc.gridwidth=1;
+gbc.gridheight=1;
+gbc.weightx=0;
+gbc.weighty=0;
+
+//TempToolPanel= new ToolPanel();
 
 
 
-jtf1=new JTextField("0.000001");
-add(jtf1, gbc);
 
-jtf2=new JTextField("0.5");
-gbc.gridy=2;
-add(jtf2, gbc);
-
-jtf3=new JTextField("1");
-gbc.gridy=3;
-add(jtf3, gbc);
-
-jtf4=new JTextField("0.03");
-gbc.gridy=4;
-add(jtf4, gbc);
-
-jtf5=new JTextField("0.1");
-gbc.gridy=5;
-add(jtf5, gbc);
-
-jtf6=new JTextField("1");
-gbc.gridy=6;
-add(jtf6, gbc);
-
-jtf7=new JTextField("100");
-gbc.gridy=7;
-add(jtf7, gbc);
-
-jtf8=new JTextField("100");
-gbc.gridy=8;
-add(jtf8, gbc);
-
-jtf9=new JTextField("100");
-gbc.gridy=9;
-add(jtf9, gbc);
-
-jtf10=new JTextField("1");
-gbc.gridy=10;
-add(jtf10, gbc);
+add(TempToolPanel, gbc);
 
 
-JPanel jp2;
-for(int i=0;i<30;i++)
-{
-	jp2=new JPanel();
-	gbc.gridx=1;
-	gbc.gridy=11+i;
-	gbc.gridwidth=2;
-	gbc.gridheight=1;
-	gbc.weightx=1;
-	gbc.weighty=1;
-
-add(jp2, gbc);
-}
-
-
-setVisible(true);
 
 }
 	
@@ -487,24 +444,28 @@ setVisible(true);
 	public static void main(String[] args) throws IOException {
 		// TODO Auto-generated method stub
 		
-		@SuppressWarnings("unused")
-		Project project= new Project();
+		ToolPanel toolPanel = new ToolPanel();
+		Project project= new Project(toolPanel);
+		project.setSize(1300,950);
+		Dimension dimension=new Dimension(1300,950);
+		project.setMinimumSize(dimension);
+		project.setVisible(true);
 
 		Simulation s;
 		s=new Simulation(
-				Double.parseDouble(jtf1.getText()),//double v_probabilityOfNaturalFission
-				Double.parseDouble(jtf2.getText()),//double v_probabilityOfReflection
-				Double.parseDouble(jtf3.getText()),//double v_velocityOfNeutron
-				Double.parseDouble(jtf4.getText()), //double v_dt
-				Double.parseDouble(jtf5.getText()), //double v_maxDistanceFromAtomThatCausesFission
-				Double.parseDouble(jtf6.getText()), //double v_energyOfFission
+				toolPanel.getJtf1(),//double v_probabilityOfNaturalFission
+				toolPanel.getJtf2(),//double v_probabilityOfReflection
+				toolPanel.getJtf3(),//double v_velocityOfNeutron
+				toolPanel.getJtf4(), //double v_dt
+				toolPanel.getJtf5(), //double v_maxDistanceFromAtomThatCausesFission
+				toolPanel.getJtf6(), //double v_energyOfFission
 				0, //double v_energyAfterIteration
 				0, //double v_totalEnergy,
 				0, //double v_instantaneousPower
-				Integer.parseInt(jtf7.getText()), //int 
-				Integer.parseInt(jtf8.getText()), //int
-				Integer.parseInt(jtf9.getText()), //int
-				Double.parseDouble(jtf10.getText())); //double
+				toolPanel.getJtf7(), //int 
+				toolPanel.getJtf8(), //int
+				toolPanel.getJtf9(), //int
+				toolPanel.getJtf10()); //double
 		
 				s.letThereBeAtoms();
 				
@@ -513,95 +474,48 @@ setVisible(true);
 				bw = new BufferedWriter(new OutputStreamWriter(fos));
 				
 				
-				
-					bw.write("Symulacja 2000");
-					bw.newLine();
-					bw.write("Prawdopodobienstwo naturalnego rozpadu "+jtf1.getText());
-					bw.newLine();
-					bw.write("Prawdopodobienstwo odbicia "+jtf2.getText());
-					bw.newLine();
-					bw.write("Predkosc neutronu [m/s] "+jtf3.getText());
-					bw.newLine();
-					bw.write("dt - krok symulacji [s] "+jtf4.getText());
-					bw.newLine();
-					bw.write("Promien jadra atomu [m] "+jtf5.getText());
-					bw.newLine();
-					bw.write("Energia pojedynczego rozpadu [J] "+jtf6.getText());
-					bw.newLine();
-					bw.write("Ilosc atomow we wspolrzednej x "+jtf7.getText());
-					bw.newLine();
-					bw.write("Ilosc atomow we wspolrzednej y "+jtf8.getText());
-					bw.newLine();
-					bw.write("Ilosc atomow we wspolrzednej z "+jtf9.getText());
-					bw.newLine();
-					bw.write("Odleglosc pomiedzy atomami [m] "+jtf10.getText());
-					bw.newLine();
-					bw.newLine();
-					bw.write("Czas [s] "+ "Energia [J]" + "Moc [W]");
-			 
-				 
+				printHeader(bw,toolPanel);
+		
+		
 				 
 		while(true)
 		{
 		
 		
-		if(simulationReset==true)
+		if(project.getSimulationReset())
 		{
-		s=new Simulation(
-				Double.parseDouble(jtf1.getText()),//double v_probabilityOfNaturalFission
-				Double.parseDouble(jtf2.getText()),//double v_probabilityOfReflection
-				Double.parseDouble(jtf3.getText()),//double v_velocityOfNeutron
-				Double.parseDouble(jtf4.getText()), //double v_dt
-				Double.parseDouble(jtf5.getText()), //double v_maxDistanceFromAtomThatCausesFission
-				Double.parseDouble(jtf6.getText()), //double v_energyOfFission
-				0, //double v_energyAfterIteration
-				0, //double v_totalEnergy,
-				0, //double v_instantaneousPower
-				Integer.parseInt(jtf7.getText()), //int 
-				Integer.parseInt(jtf8.getText()), //int
-				Integer.parseInt(jtf9.getText()), //int
-				Double.parseDouble(jtf10.getText())); //double
+			s=new Simulation(
+					toolPanel.getJtf1(),//double v_probabilityOfNaturalFission
+					toolPanel.getJtf2(),//double v_probabilityOfReflection
+					toolPanel.getJtf3(),//double v_velocityOfNeutron
+					toolPanel.getJtf4(), //double v_dt
+					toolPanel.getJtf5(), //double v_maxDistanceFromAtomThatCausesFission
+					toolPanel.getJtf6(), //double v_energyOfFission
+					0, //double v_energyAfterIteration
+					0, //double v_totalEnergy,
+					0, //double v_instantaneousPower
+					toolPanel.getJtf7(), //int 
+					toolPanel.getJtf8(), //int
+					toolPanel.getJtf9(), //int
+					toolPanel.getJtf10()); //double
 				s.letThereBeAtoms();
 
 				fout = new File("log.txt");
 				fos = new FileOutputStream(fout);
 				bw = new BufferedWriter(new OutputStreamWriter(fos));
 				
+				//toolPanel.getJtf1();
 				
-				
-					bw.write("Symulacja 2000");
-					bw.newLine();
-					bw.write("Prawdopodobienstwo naturalnego rozpadu "+jtf1.getText());
-					bw.newLine();
-					bw.write("Prawdopodobienstwo odbicia "+jtf2.getText());
-					bw.newLine();
-					bw.write("Predkosc neutronu [m/s] "+jtf3.getText());
-					bw.newLine();
-					bw.write("dt - krok symulacji [s] "+jtf4.getText());
-					bw.newLine();
-					bw.write("Promien jadra atomu [m] "+jtf5.getText());
-					bw.newLine();
-					bw.write("Energia pojedynczego rozpadu [J] "+jtf6.getText());
-					bw.newLine();
-					bw.write("Ilosc atomow we wspolrzednej x "+jtf7.getText());
-					bw.newLine();
-					bw.write("Ilosc atomow we wspolrzednej y "+jtf8.getText());
-					bw.newLine();
-					bw.write("Ilosc atomow we wspolrzednej z "+jtf9.getText());
-					bw.newLine();
-					bw.write("Odleglosc pomiedzy atomami [m] "+jtf10.getText());
-					bw.newLine();
-					bw.newLine();
-					bw.write("Czas [s] "+ "Energia [J]" + " "+"Moc [W]");
-					bw.newLine();
+					
+				printHeader(bw,toolPanel);
 
 					
-				simulationReset=false;
+				project.setSimulationReset(false);
 		}	
 		
 		
 		
-		while(simulationStart)
+		while(project.getSimulationStart())
 		{
 			
 			s.energyAfterIterationEqualsZero();

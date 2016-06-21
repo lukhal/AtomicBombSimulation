@@ -35,6 +35,10 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 public class Project extends JFrame{
 
+	
+	//
+	//i like pancakes
+	//
 	/**
 	 * 
 	 */
